@@ -1,0 +1,20 @@
+<div class="calculator container">
+    <div class="row d-flex justify-content-around gap-1 mb-2">
+        <div class="gray-display text-capitalize col-6">molly tellex</div>
+        <div class="gray-display  text-capitalize col-5">credit: 10000</div>
+    </div>
+    <!-- <div class="container">
+      </div> -->
+      
+    <input type="number" class="form-control mb-3 operator" placeholder="algo" [(ngModel)]="display">
+    <div class="buttons row">
+      <ng-container *ngFor="let button of buttons">
+        <div class="col-3 mb-2">
+          <button class="btn btn-primary btn-calculator" [ngClass]="{'btn-selected': selected}"  (click)="handleClick(button)">
+            {{ button }}
+          </button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+  

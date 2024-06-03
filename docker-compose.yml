@@ -69,9 +69,10 @@ services:
     # PHPMYADMIN Service
     phpmyadmin:
         image: phpmyadmin/phpmyadmin
+        platform: linux/amd64
         container_name: "${PROJECT_NAME}_phpmyadmin"
         ports:
-            - "7000:80"
+            - "8080:80"
         links:
             - mysql:mysql
         environment:

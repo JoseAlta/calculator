@@ -4,6 +4,11 @@ RUN mkdir /usr/src/app && mkdir /usr/src/app/frontend
  
 WORKDIR /usr/src/app/frontend
 
+COPY package*.json ./
+
 RUN npm install -g @angular/cli 
+
+RUN npm install bootstrap
+
 
 COPY . .
