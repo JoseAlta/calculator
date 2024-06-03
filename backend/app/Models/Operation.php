@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Record;
 
 class Operation extends Model
 {
@@ -13,6 +14,11 @@ class Operation extends Model
     protected $fillable = [
         'type',
         'cost',
+    ];
+
+    public static $rules = [
+        'type' => 'required|in:add,subtract,multiply,divide,square',
+        'cost' => 'required|integer|min:1',
     ];
 
     public function user(): BelongsTo

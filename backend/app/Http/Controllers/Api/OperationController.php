@@ -4,18 +4,44 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\OperationRequest;
 use App\Models\Operation;
+use App\Models\Record;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Validation\Rule;
+use App\Interfaces\OperationInterface;
+use App\Services\SumOperation;
+use App\Services\SubtractionOperation;
+use App\Services\SquareOperation;
+use App\Services\MultiplyOperation;
+use App\Services\DivisionOperation;
+use Illuminate\Validation\ValidationException;
+
+
 
 class OperationController extends Controller
 {
+    private $sumOperation;
+    private $subtractionOperation;
+    private $multiplyOperation;
+    private $divisionOperation;
+    private $squareOperation;
 
-    public function __construct()
+    public function __construct(   SumOperation $sumOperation,
+    SubtractionOperation $subtractionOperation,
+    SquareOperation $squareOperation,
+    MultiplyOperation $multiplyOperation,
+    DivisionOperation $divisionOperation)
     {
         $this->middleware('auth:sanctum');
+        $this->sumOperation = $sumOperation;
+        $this->subtractionOperation = $subtractionOperation;
+        $this->multiplyOperation = $multiplyOperation;
+        $this->divisionOperation = $divisionOperation;
+        $this->squareOperation = $squareOperation;
+        // Log::debug((array) $this->addOperation);
     }
     public function index()
     {
@@ -26,20 +52,39 @@ class OperationController extends Controller
     {
         $user = $request->user();
         $operationData = $request->only('type', 'cost');
+        // $request->validate();
+        // if ($request->fails()) {
+        //     // Manejar los errores de validación aquí
+        //     Log::debug("werrrrorr");
+        // }
+        try {
+            $validatedData = $request->validate([
+                'type' => [
+                    'required',
+                    Rule::in(['add', 'subtraction', 'division', 'multiply', 'square']),
+                ],
+                'cost' => 'required|integer|min:0',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json(['error' => $e->errors()], 422);
+        }
+        Log::debug($validatedData);
+        if ($operationData['type'] === 'subtraction') {
+            $user = $request->user();
+            $amountToSubtract = $operationData['cost'];
 
+            if (!$this->validateUserCredit($user, $amountToSubtract)) {
+                throw new \InvalidArgumentException("User does not have enough credit for subtraction");
+            }
+        }
 
-        $validatedData = $request->validate([
-            'type' => [
-                'required',
-                Rule::in(['sum', 'resta', 'division', 'multiplicacion', 'razi']),
-            ],
-            'cost' => 'required|integer|min:1',
-        ]);
 
         Log::debug("usuario");
         Log::debug($user->credit);
+        // Log::debug($validatedData);
 
         // Crear la operación asociada al usuario
+        $credit = $user->credit;
         $result = $this->makeOperation($user, $operationData['type'], $operationData['cost']);
 
         // Crear la operación asociada al usuario
@@ -47,6 +92,15 @@ class OperationController extends Controller
             'type' => $operationData['type'],
             'cost' => $operationData['cost'],
             'result' => $result,
+        ]);
+        $record = Record::create([
+            'operation_id' => $operation->id,
+            'operation_type' => $operationData['type'],
+            'user_id' => $user->id,
+            'amount' => $operationData['cost'],
+            'user_balance' => $credit,
+            'operation_response' => $result,
+            'date' => now(),
         ]);
         // $operation = $user->operations()->create($operationData);
 
@@ -93,36 +147,29 @@ class OperationController extends Controller
      */
     private function makeOperation(User $user, $type, $cost)
     {
+
         switch ($type) {
             case 'add':
-                $result = $user->credit + $cost;
+                $result = $this->sumOperation->execute($user->credit, $cost);
                 break;
-            case 'rest':
-                if (!$this->validateUserCredit($user, $cost)) {
-                    return response()->json(['error1' => 'User does not have enough credit'], 403);
-                }
-                $result = $user->credit - $cost;
+            case 'subtraction':
+                $result = $this->subtractionOperation->execute($user->credit, $cost);
                 break;
-            case 'by':
-                $result = $user->credit * $cost;
-                break;
-            case 'division':
-                if ($cost == 0) {
-                    throw new \InvalidArgumentException("Cannot divide by zero");
-                }
-                $result = $user->credit / $cost;
+            case 'multiply':
+                $result = $this->multiplyOperation->execute($user->credit, $cost);
                 break;
             case 'square':
-                if ($user->credit < 0) {
-                    throw new \InvalidArgumentException("Cannot calculate square root of a negative number");
-                }
-                $result = sqrt($user->credit);
+                $result = $this->squareOperation->execute($user->credit, $cost);
+                break;
+            case 'division':
+                    $result = $this->divisionOperation->execute($user->credit, $cost);
                 break;
             default:
                 throw new \InvalidArgumentException("Invalid operation type");
         }
 
-        // Actualizar el crédito del usuario en la base de datos
+       
+
         $user->credit = $result;
         $user->save();
 
