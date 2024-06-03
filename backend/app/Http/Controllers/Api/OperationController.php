@@ -22,12 +22,11 @@ class OperationController extends Controller
 
     public function store(Request $request)
     {
-        $user = $request->user(); // Obtener el usuario autenticado
+        $user = $request->user();
         $operationData = $request->only('type', 'cost');
-    
-        // Crear la operación asociada al usuario
+
         $operation = $user->operations()->create($operationData);
-    
+
         return response()->json($operation, 201);
     }
 
