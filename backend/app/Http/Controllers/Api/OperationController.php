@@ -8,6 +8,7 @@ use App\Models\Operation;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Validation\Rule;
 
 class OperationController extends Controller
 {
@@ -27,6 +28,13 @@ class OperationController extends Controller
         $operationData = $request->only('type', 'cost');
 
 
+        $validatedData = $request->validate([
+            'type' => [
+                'required',
+                Rule::in(['sum', 'resta', 'division', 'multiplicacion', 'razi']),
+            ],
+            'cost' => 'required|integer|min:1',
+        ]);
 
         Log::debug("usuario");
         Log::debug($user->credit);
