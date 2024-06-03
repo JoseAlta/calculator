@@ -44,13 +44,11 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         try {
-            // Validación de la solicitud
             $request->validate([
                 'email' => 'required|string|email',
                 'password' => 'required|string|min:8',
             ]);
 
-            // Intento de autenticación
             if (!Auth::attempt($request->only('email', 'password'))) {
                 return response()->json(['errors' => ['login' => 'Invalid user email or password ']], 401);
             }

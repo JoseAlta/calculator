@@ -49,4 +49,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Operation::class);
     }
+    public function records()
+    {
+        return $this->hasMany(Record::class);
+    }
 }

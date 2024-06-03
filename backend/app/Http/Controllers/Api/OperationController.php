@@ -23,7 +23,7 @@ class OperationController extends Controller
 
     public function store(Request $request)
     {
-        $user = $request->user(); // Obtener el usuario autenticado
+        $user = $request->user();
         $operationData = $request->only('type', 'cost');
 
 
