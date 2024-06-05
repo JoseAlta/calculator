@@ -7,7 +7,7 @@
     top:25%;
     margin-top:50px;
     padding: 8px 16px;
-    
+
 }
 .btn-calculator{
     box-sizing: border-box;
@@ -39,6 +39,12 @@
     max-height: 38px;
     font-size: 24px;
     border: none;
+  }
+  .btn-selected {
+    box-shadow: 7px 6px 0px transparent;
+    background: #46dcf6;
+    color: black;
+    margin-left: 3px;
   }
   .gray-display {
     background-color: #c8cccc;

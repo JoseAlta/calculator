@@ -10,6 +10,7 @@ export class AuthService {
   private apiUrl = 'http://localhost:8000/api';
   private readonly TOKEN_KEY = 'access_token';
 
+  private userId:any;
   constructor(private http: HttpClient) { }
 
   login(credentials: any): Observable<any> {
@@ -21,6 +22,7 @@ export class AuthService {
   }
   saveToken(token: string) {
     sessionStorage.setItem(this.TOKEN_KEY, token);
+    // this.userId =userId;
   }
 
   getToken(): string | null {
@@ -28,6 +30,14 @@ export class AuthService {
   }
   clearToken() {
     sessionStorage.removeItem(this.TOKEN_KEY);
+  }
+  saveUser(userId:any){
+    this.userId =userId;
+  }
+  getUserId(): any {
+    console.log("user id authenitcation service");
+    console.log(this.userId);
+    return this.userId;
   }
 
 }

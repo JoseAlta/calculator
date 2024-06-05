@@ -63,7 +63,7 @@ class OperationController extends Controller
                     'required',
                     Rule::in(['add', 'subtraction', 'division', 'multiply', 'square']),
                 ],
-                'cost' => 'required|integer|min:0',
+                'cost' => 'required|numeric|min:0',
             ]);
         } catch (ValidationException $e) {
             return response()->json(['error' => $e->errors()], 422);
@@ -78,16 +78,9 @@ class OperationController extends Controller
             }
         }
 
-
-        Log::debug("usuario");
-        Log::debug($user->credit);
-        // Log::debug($validatedData);
-
-        // Crear la operación asociada al usuario
         $credit = $user->credit;
         $result = $this->makeOperation($user, $operationData['type'], $operationData['cost']);
 
-        // Crear la operación asociada al usuario
         $operation = $user->operations()->create([
             'type' => $operationData['type'],
             'cost' => $operationData['cost'],
@@ -102,7 +95,10 @@ class OperationController extends Controller
             'operation_response' => $result,
             'date' => now(),
         ]);
-        // $operation = $user->operations()->create($operationData);
+        $operation['credit'] = $result;
+        $operation = $user->operations()->create($operationData);
+        Log::debug("operation");
+        Log::debug($operation);
 
         return response()->json($operation, 201);
     }
@@ -159,7 +155,7 @@ class OperationController extends Controller
                 $result = $this->multiplyOperation->execute($user->credit, $cost);
                 break;
             case 'square':
-                $result = $this->squareOperation->execute($user->credit, $cost);
+                $result = $this->squareOperation->execute($user->credit, 2);
                 break;
             case 'division':
                     $result = $this->divisionOperation->execute($user->credit, $cost);
@@ -167,8 +163,6 @@ class OperationController extends Controller
             default:
                 throw new \InvalidArgumentException("Invalid operation type");
         }
-
-       
 
         $user->credit = $result;
         $user->save();

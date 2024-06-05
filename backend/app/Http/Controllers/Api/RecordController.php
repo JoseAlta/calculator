@@ -84,4 +84,35 @@ class RecordController extends Controller
         $record->delete();
         return response()->json(['message' => 'Record deleted successfully']);
     }
+
+    public function getByUser($id){
+
+        $records = Record::where('user_id',$id)->get();
+
+        $mappedRecords = $records->map(function ($record) {
+            $operationSigns = [
+                "add" => "+",
+                "subtraction" => "-",
+                "division" => "/",
+                "multiply" => "*",
+                "square" => "^"
+            ];
+            return [
+                'id' => $record->id,
+                'amount' => $record->amount,
+                'created_at' => $record->created_at,
+                'date' => $record->date,
+                'operation_id' => $record->operation_id,
+                'operation_response' => $record->operation_response,
+                'updated_at' => $record->updated_at,
+                'user_balance' => $record->user_balance,
+                'user_id' => $record->user_id,
+                'operation_type' => $operationSigns[$record->operation->type] ?? null
+            ];
+        });
+        if (!$mappedRecords) {
+            return response()->json(['error1' => 'Record not found'], 404);
+        }
+        return response()->json($mappedRecords);
+    }
 }

@@ -18,7 +18,7 @@ class Operation extends Model
 
     public static $rules = [
         'type' => 'required|in:add,subtract,multiply,divide,square',
-        'cost' => 'required|integer|min:1',
+        'cost' => 'required|float|min:1',
     ];
 
     public function user(): BelongsTo

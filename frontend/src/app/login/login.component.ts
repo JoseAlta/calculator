@@ -20,8 +20,11 @@ export class LoginComponent {
     console.log("credencials");
     console.log(credentials);
     this.authService.login(credentials).subscribe(response => {
-      console.log('Token de acceso:', response.access_token);
+      console.log('Token de acceso:', response);
       this.authService.saveToken(response.access_token);
+      this.authService.saveUser(response.userId);
+      console.log('user:', response.userId);
+
       this.router.navigate(['/dashboard']);
     }, error => {
       console.error('Error al iniciar sesión:', error);

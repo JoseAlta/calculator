@@ -1,20 +1,34 @@
 <div class="calculator container">
-    <div class="row d-flex justify-content-around gap-1 mb-2">
-        <div class="gray-display text-capitalize col-6">molly tellex</div>
-        <div class="gray-display  text-capitalize col-5">credit: 10000</div>
+  <div class="alert alert-danger" role="alert" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+  <app-top-screens></app-top-screens>
+
+  <div class="alert alert-danger" role="alert" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+    <div class="calculators d-flex flex-row">
+      <div class="screen col-11">
+        <input type="string" pattern="[0-9]+(\.[0-9]+)?"  class="form-control mb-3 operator" placeholder="algo" [(ngModel)]="display">
+      </div>
+      <div class="col-md-1">
+        <button class="expand-button" (click)="goToTransactions()">
+          ▼
+        </button>
+      </div>
+
     </div>
-    <!-- <div class="container">
-      </div> -->
-      ss
-    <input type="number" class="form-control mb-3 operator" placeholder="algo" [(ngModel)]="display">
+    <div class="screen">
+      <!-- Contenido de la pantalla aquí -->
+    </div>
     <div class="buttons row">
       <ng-container *ngFor="let button of buttons">
         <div class="col-3 mb-2">
-          <button class="btn btn-primary btn-calculator" [ngClass]="{'btn-selected': selected}"  (click)="handleClick(button)">
-            {{ button }}
+          <button class="btn btn-primary btn-calculator" [ngClass]="{'btn-selected': selected[button.value]}"  (click)="handleClick(button.value)" [attr.value]="button.value">
+            {{ button.displayName }}
           </button>
         </div>
       </ng-container>
     </div>
   </div>
-  
