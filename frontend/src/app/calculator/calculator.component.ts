@@ -4,6 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { operatorMap } from '../shared/constants/operators';
 import { Router } from '@angular/router';
 import { TopScreensComponent } from '../top-screens/top-screens.component';
+import { RandomService } from '../random.service';
 @Component({
   selector: 'app-calculator',
   templateUrl: './calculator.component.html',
@@ -18,6 +19,7 @@ export class CalculatorComponent {
   errorMessage: string = '';
   answer:boolean = false;
   userId:string = '';
+  randomString!: string;
 
   @ViewChild(TopScreensComponent) topScreensComponent!: TopScreensComponent;
 
@@ -50,9 +52,11 @@ export class CalculatorComponent {
 
   constructor(private authService: AuthService,
               private http: HttpClient,
+              private randomService: RandomService,
               private router: Router) { }
 
   ngOnInit(): void {
+
     const token = this.authService.getToken();
     if (token) {
       const headers = new HttpHeaders({
@@ -81,6 +85,8 @@ export class CalculatorComponent {
     this.errorMessage = '';
     if (value === '=') {
       this.performOperation(this.display);
+    } else if(value === 'random'){
+      this.fetchRandomString();
     } else if (value === 'clear') {
       this.display = '';
     } else if (value === 'backspace') {
@@ -130,15 +136,7 @@ export class CalculatorComponent {
       return;
     }
 
-    const operand1 = parseFloat(parts[0]);
     const operand2 = parseFloat(parts[1]);
-
-    // const operatorMap: { [key: string]: string } = {
-    //   '+': 'sumar',
-    //   '-': 'restar',
-    //   '*': 'multiplicar',
-    //   '/': 'dividir'
-    // };
 
     const operatorName = operatorMap[sign];
 
@@ -200,6 +198,11 @@ export class CalculatorComponent {
     } else {
       return false;
     }
+  }
+  fetchRandomString(){
+    this.randomService.getRandomString().subscribe((data) => {
+      this.display = data;
+    });
   }
 
 }
