@@ -11,6 +11,7 @@ export interface Transaction {
   created_at: string;
   date: string;
   operation_id: number;
+  operation_type:string;
   operation_response: string;
   updated_at: string;
   user_balance: string;

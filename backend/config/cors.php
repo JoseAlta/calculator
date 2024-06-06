@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:8000', 'http://localhost:4200'],
+    'allowed_origins' => ['http://localhost:8000', 'http://localhost:4200', 'https://wr73h5c7-4200.usw3.devtunnels.ms'],
 
     'allowed_origins_patterns' => [],
 

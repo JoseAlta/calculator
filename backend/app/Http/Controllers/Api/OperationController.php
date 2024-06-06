@@ -18,7 +18,7 @@ use App\Services\SquareOperation;
 use App\Services\MultiplyOperation;
 use App\Services\DivisionOperation;
 use Illuminate\Validation\ValidationException;
-
+use Illuminate\Support\Facades\DB;
 
 
 class OperationController extends Controller
@@ -120,6 +120,64 @@ class OperationController extends Controller
         return response()->json(null, 204);
     }
 
+     /**
+     * Eimina todas las operaciones posteriores al id (incluyendlo)
+     *
+     * @param int $operationId The ID of the operation from which to start deletion.
+     * @return \Illuminate\Http\JsonResponse
+     */
+
+    public function deleteFromOperation($operationId)
+    {
+        DB::transaction(function () use ($operationId) {
+            // Obtener la operación especificada
+            $operation = Operation::findOrFail($operationId);
+
+            // Obtener el usuario asociado a la operación
+            $user = $operation->user;
+
+            // Obtener el último record antes de la operación especificada
+            $lastRecord = Record::where('user_id', $user->id)
+                                ->where('operation_id', '<', $operationId)
+                                ->orderBy('id', 'desc')
+                                ->first();
+
+            // Si hay un record anterior, restablecer el crédito del usuario
+            if ($lastRecord) {
+                $newCredit = $lastRecord->user_balance;
+            } else {
+                // Si no hay records anteriores, resetear el crédito a 0 o a un valor predeterminado
+                $newCredit = 0;
+            }
+
+            // Crear un nuevo record para reflejar la operación de eliminación antes de eliminar las operaciones
+            Record::create([
+                'operation_id' => $operation->id,
+                'user_id' => $user->id,
+                'amount' => 0, // Monto 0 ya que es una operación de eliminación
+                'user_balance' => $newCredit,
+                'operation_response' => 'Delete operations from ID: ' . $operationId,
+                'date' => now(),
+            ]);
+
+            // Actualizar el crédito del usuario
+            $user->credit = $newCredit;
+            $user->save();
+
+            // Obtener todas las operaciones del usuario posteriores a la operación especificada (incluyéndola)
+            $operationsToDelete = Operation::where('user_id', $user->id)
+                                        ->where('id', '>=', $operationId)
+                                        ->get();
+
+            // Realizar soft delete en las operaciones y sus registros
+            foreach ($operationsToDelete as $op) {
+                $op->records()->delete(); // Soft delete de los registros
+                $op->delete(); // Soft delete de las operaciones
+            }
+        });
+
+        return response()->json(['message' => 'Operations soft deleted and user credit updated successfully.']);
+    }
 
     /**
      * Valida que el usuario tenga suficiente crédito.

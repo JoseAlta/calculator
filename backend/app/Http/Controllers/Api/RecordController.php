@@ -7,7 +7,7 @@ use App\Models\Record;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-
+use Carbon\Carbon;
 
 class RecordController extends Controller
 {
@@ -87,7 +87,11 @@ class RecordController extends Controller
 
     public function getByUser($id){
 
-        $records = Record::where('user_id',$id)->get();
+        $records = Record::where('user_id',$id)->whereNull('deleted_at')->get();
+
+        Log::debug("records from getbyuser");
+        Log::debug($records);
+
 
         $mappedRecords = $records->map(function ($record) {
             $operationSigns = [
@@ -97,11 +101,13 @@ class RecordController extends Controller
                 "multiply" => "*",
                 "square" => "^"
             ];
+            $date = $record->date instanceof Carbon ? $record->date->format('Y-m-d h:i a') : Carbon::createFromFormat('Y-m-d H:i:s', $record->date)->format('Y-m-d h:i a');
+            $created_at = $record->created_at instanceof Carbon ? $record->created_at->format('Y-m-d h:i a') : Carbon::createFromFormat('Y-m-d H:i:s', $record->created_at)->format('Y-m-d h:i a');
             return [
                 'id' => $record->id,
                 'amount' => $record->amount,
-                'created_at' => $record->created_at,
-                'date' => $record->date,
+                'created_at' => $created_at,
+                'date' => $date,
                 'operation_id' => $record->operation_id,
                 'operation_response' => $record->operation_response,
                 'updated_at' => $record->updated_at,

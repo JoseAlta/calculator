@@ -13,8 +13,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { AppRoutingModule } from './app-routing.module';
 import { TopScreensComponent } from './top-screens/top-screens.component';
-
-
+import { CommonModule, DatePipe } from '@angular/common';
 @NgModule({
   declarations: [
     AppComponent,
@@ -30,7 +29,8 @@ import { TopScreensComponent } from './top-screens/top-screens.component';
     MatTableModule,
     MatPaginatorModule,
     BrowserAnimationsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    CommonModule
   ],
   providers: [],
   bootstrap: [AppComponent]
