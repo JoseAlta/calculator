@@ -1,8 +1,9 @@
-import { Component, HostListener, OnInit} from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild} from '@angular/core';
 import { AuthService } from '../auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { operatorMap } from '../shared/constants/operators';
 import { Router } from '@angular/router';
+import { TopScreensComponent } from '../top-screens/top-screens.component';
 @Component({
   selector: 'app-calculator',
   templateUrl: './calculator.component.html',
@@ -10,7 +11,6 @@ import { Router } from '@angular/router';
 })
 export class CalculatorComponent {
   display: string = '';
-  // selected: boolean = false;
   userData: any;
   type: string = '';
   selected: { [key: string]: boolean } = {};
@@ -19,13 +19,8 @@ export class CalculatorComponent {
   answer:boolean = false;
   userId:string = '';
 
-  // buttons: Array<string> = [
-  //   '√', 'CE', 'RM', '<--',
-  //   '7', '8', '9', '/',
-  //   '4', '5', '6', 'X',
-  //   '1', '2', '3', '-',
-  //   '0', '.', '=', '+',
-  // ];
+  @ViewChild(TopScreensComponent) topScreensComponent!: TopScreensComponent;
+
   buttons: Array<{ displayName: string, value: string }> = [
     { displayName: '√', value: 'square' },
     { displayName: 'CE', value: 'clear' },
@@ -111,7 +106,6 @@ export class CalculatorComponent {
   performOperation(display: string): void {
     const token = this.authService.getToken();
 
-// userId = this.authService.getToken();
     if (!token) {
       console.error('No se encontró un token de acceso en sessionStorage.');
       return;
@@ -148,10 +142,6 @@ export class CalculatorComponent {
     // };
 
     const operatorName = operatorMap[sign];
-    console.log("operator name");
-    console.log(operatorName);
-    console.log(sign);
-    console.log(operatorMap);
 
     if (!operatorName) {
       console.error('Operador no válido.');
@@ -160,53 +150,58 @@ export class CalculatorComponent {
 
     const payload = {
       cost: operand2,
-      type: operatorName
+      operation_type: operatorName
     };
 
-    this.http.post<any>('http://localhost:8000/api/operations', payload, { headers }).subscribe(
+    this.http.post<any>('http://localhost:8000/api/user/operation', payload, { headers }).subscribe(
       response => {
-        this.credit = parseFloat(response.credit).toFixed(3);
-
+        this.credit = parseFloat(response.new_credit).toFixed(3);
+        console.log("response");
+        console.log(response);
         this.display = this.credit;
         this.answer = true;
+        if (this.topScreensComponent) {
+          this.topScreensComponent.updateCredit(this.credit); // Actualiza el crédito con el resultado de la operación
+        }
       },
       error => {
         console.error('Error al realizar la operación:', error.error);
         console.error('Error al realizar la operación:', error);
-        var error = error.error.pop();
-        this.errorMessage = JSON.stringify(error);
+        // var error = error.error.pop();
+        this.errorMessage = JSON.stringify(error.error.message);
         console.error('Error al realizar la operación:', this.errorMessage);
 
       }
     );
   }
-  // Agrega este método para manejar pulsaciones de teclado
   @HostListener('window:keydown', ['$event'])
   handleKeydown(event: KeyboardEvent): void {
     const key = event.key;
     this.errorMessage = '';
-    // Encuentra el botón correspondiente a la tecla presionada
     const button = this.buttons.find(btn => btn.value === key || (key === 'Enter' && btn.value === '='));
-
-    console.log(button);
-    console.log("button");
     if (button ) {
-    console.log("button");
-
-      this.handleClick(button.value);
+      if(this.checkIfFocused() == false){
+        this.handleClick(button.value);
+      }
       this.applyButtonEffect(button.value);
     }
   }
   applyButtonEffect(value: string): void {
     this.selected[value] = true;
-    setTimeout(() => this.selected[value] = false, 200); // Remueve la clase después de 200 ms
+    setTimeout(() => this.selected[value] = false, 200);
   }
 
   goToTransactions(): void {
-    console.log("userdata from transaccion");
-    console.log(this.userData);
-
     this.router.navigate(['/transactions', this.userData.id]);
+  }
+
+  checkIfFocused(): boolean {
+    let myTextInput = document.getElementById('display') as HTMLInputElement;
+    if (document.activeElement == myTextInput) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
 }

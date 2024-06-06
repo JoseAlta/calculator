@@ -19,10 +19,12 @@ use App\Services\MultiplyOperation;
 use App\Services\DivisionOperation;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
+use App\Services\CreditService;
 
 
 class OperationController extends Controller
 {
+    protected $creditService;
     private $sumOperation;
     private $subtractionOperation;
     private $multiplyOperation;
@@ -33,15 +35,17 @@ class OperationController extends Controller
     SubtractionOperation $subtractionOperation,
     SquareOperation $squareOperation,
     MultiplyOperation $multiplyOperation,
-    DivisionOperation $divisionOperation)
+    DivisionOperation $divisionOperation,
+    CreditService $creditService)
     {
         $this->middleware('auth:sanctum');
+        $this->creditService = $creditService;
+
         $this->sumOperation = $sumOperation;
         $this->subtractionOperation = $subtractionOperation;
         $this->multiplyOperation = $multiplyOperation;
         $this->divisionOperation = $divisionOperation;
         $this->squareOperation = $squareOperation;
-        // Log::debug((array) $this->addOperation);
     }
     public function index()
     {
@@ -52,11 +56,6 @@ class OperationController extends Controller
     {
         $user = $request->user();
         $operationData = $request->only('type', 'cost');
-        // $request->validate();
-        // if ($request->fails()) {
-        //     // Manejar los errores de validación aquí
-        //     Log::debug("werrrrorr");
-        // }
         try {
             $validatedData = $request->validate([
                 'type' => [
@@ -68,7 +67,6 @@ class OperationController extends Controller
         } catch (ValidationException $e) {
             return response()->json(['error' => $e->errors()], 422);
         }
-        Log::debug($validatedData);
         if ($operationData['type'] === 'subtraction') {
             $user = $request->user();
             $amountToSubtract = $operationData['cost'];
@@ -84,8 +82,9 @@ class OperationController extends Controller
         $operation = $user->operations()->create([
             'type' => $operationData['type'],
             'cost' => $operationData['cost'],
-            'result' => $result,
+            'credit' => $result,
         ]);
+        $operation['credit'] = $result;
         $record = Record::create([
             'operation_id' => $operation->id,
             'operation_type' => $operationData['type'],
@@ -95,12 +94,48 @@ class OperationController extends Controller
             'operation_response' => $result,
             'date' => now(),
         ]);
-        $operation['credit'] = $result;
-        $operation = $user->operations()->create($operationData);
-        Log::debug("operation");
-        Log::debug($operation);
 
         return response()->json($operation, 201);
+    }
+
+    public function handleOperation(Request $request)
+    {
+        Log::debug("handleOperation");
+
+        $validatedData = $request->validate([
+            'cost' => 'required|numeric|min:0',
+            'operation_type' => 'required|string|in:add,subtraction,multiply,division,square'
+        ]);
+        Log::debug("handleOperation");
+
+        $user = $request->user();
+        Log::debug($user);
+
+        try {
+            // Crear la operación
+            $operation = new Operation([
+                'type' => $validatedData['operation_type'],
+                'cost' => $validatedData['cost']
+            ]);
+            $operation->user()->associate($user);
+            $operation->save();
+
+            // Manejar la operación de crédito
+            $newCredit = $this->creditService->handleCreditOperation($user, $operation);
+
+            Log::debug("newCredit");
+            Log::debug($newCredit);
+            return response()->json([
+                'success' => true,
+                'new_credit' => $newCredit
+            ], 200);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
     }
 
     public function show(Operation $operation)

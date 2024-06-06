@@ -5,3 +5,72 @@
   border-radius: 5px;
   font-size: 11px;
 }
+.menu {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu li {
+  display: inline-block;
+  position: relative;
+  background-color: black;
+  cursor: pointer;
+}
+
+.menu li a {
+  display: block;
+  padding: 10px 20px;
+  text-decoration: none;
+  color: #333;
+}
+.menu li a::before {
+  font-family: 'Bootstrap Icons';
+  margin-right: 5px;
+}
+
+.menu li.calculator a::before {
+  font-family: 'Bootstrap Icons';
+  margin-right: 5px;
+  content: '\e901'; /* Código unicode del icono de la calculadora */
+}
+
+.menu li.logout a::before {
+  content: '\e902'; /* Código unicode del icono de logout */
+}
+
+.menu li:hover {
+  background-color: #f0f0f0;
+}
+
+.menu li:hover a {
+  color: #007bff; /* Cambia el color del texto cuando se pasa el mouse sobre el elemento */
+}
+
+.menu li ul {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: black;
+  border: 1px solid #ccc;
+}
+
+.menu li:hover ul {
+  display: block;
+}
+
+.menu li ul li {
+  display: block;
+}
+
+.menu li ul li a {
+  padding: 8px 20px;
+  color: #333;
+  text-decoration: none;
+}
+
+.menu li ul li:hover a {
+  background-color: #f0f0f0;
+  color: #007bff; /* Cambia el color del texto cuando se pasa el mouse sobre el submenú */
+}

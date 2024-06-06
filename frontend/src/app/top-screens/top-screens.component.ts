@@ -10,12 +10,18 @@ import { Router } from '@angular/router';
 })
 export class TopScreensComponent {
   userData: any;
-  credit: any;
+  // credit: any;
+  @Input() credit: string = "";
+  dropMenu:boolean = false;
+
   constructor(private authService: AuthService,
     private http: HttpClient,
     private router: Router) { }
 
   ngOnInit(): void {
+    this.fetchCredit();
+  }
+  fetchCredit(){
     const token = this.authService.getToken();
     if (token) {
       const headers = new HttpHeaders({
@@ -32,5 +38,15 @@ export class TopScreensComponent {
         }
       );
     }
+  }
+  updateCredit(newCredit: string): void {
+    this.credit = newCredit;
+  }
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+  toggleDropMenu() {
+    this.dropMenu = !this.dropMenu; // Invierte el valor de dropMenu
   }
 }

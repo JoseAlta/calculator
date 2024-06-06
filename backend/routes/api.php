@@ -26,8 +26,13 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 // Operations
 Route::apiResource('operations', OperationController::class);
 Route::delete('operations/delete/{operationId}', [OperationController::class,'deleteFromOperation'])->middleware('auth:sanctum');
+
 // Records
 Route::apiResource('records', RecordController::class);
+
+//user
+Route::post('/user/operation', [OperationController::class, 'handleOperation'])->middleware('auth:sanctum');
+
 Route::get('records/user/{user_id}', [RecordController::class, 'getByUser'])->middleware('auth:sanctum');
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
