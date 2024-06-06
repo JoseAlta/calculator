@@ -89,10 +89,6 @@ class RecordController extends Controller
 
         $records = Record::where('user_id',$id)->whereNull('deleted_at')->get();
 
-        Log::debug("records from getbyuser");
-        Log::debug($records);
-
-
         $mappedRecords = $records->map(function ($record) {
             $operationSigns = [
                 "add" => "+",

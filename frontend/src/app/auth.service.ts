@@ -35,8 +35,6 @@ export class AuthService {
     this.userId =userId;
   }
   getUserId(): any {
-    console.log("user id authenitcation service");
-    console.log(this.userId);
     return this.userId;
   }
 

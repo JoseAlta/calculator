@@ -14,7 +14,6 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        Log::debug("Inicio del registro");
 
         try {
             $request->validate([
@@ -23,7 +22,6 @@ class AuthController extends Controller
                 'password' => 'required|string|min:8',
             ]);
 
-            Log::debug("Validación exitosa");
 
             $user = User::create([
                 'name' => $request->name,
@@ -55,7 +53,6 @@ class AuthController extends Controller
 
             $user = User::where('email', $request['email'])->firstOrFail();
             $token = $user->createToken('auth_token')->plainTextToken;
-            Log::debug("token",(array)$token);
 
             return response()->json(['access_token' => $token, 'token_type' => 'Bearer','userId' => $user->id ]);
         } catch (ValidationException $e) {

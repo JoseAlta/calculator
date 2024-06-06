@@ -46,16 +46,12 @@ pageSize: number = 5; // Número de elementos por página
 
 }
 ngAfterViewInit() {
-  console.log(this.transactions);
   if(this.transactions){
   this.calculateTotalPages();
 
   }
 }
 fetchTransactions(): void {
-  // const userId =
-  console.log("userId fro transactions");
-  console.log(this.userId);
   if (this.token) {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.token}`
@@ -63,32 +59,12 @@ fetchTransactions(): void {
     this.http.get<any>('http://localhost:8000/api/records/user/'+this.userId,{ headers }).subscribe(
       userTransactionsData => {
         this.transactions = userTransactionsData
-
-
-        console.log(userTransactionsData);
       },
       error => {
         console.error('Error al obtener la información del usuario:', error);
       }
     );
-  } else {
   }
-
-
-
-  // this.http.get<any>('http://localhost:8000/api/records/user/'+id).subscribe(
-  //   (response: any) => {
-  //     this.transactions = response.map((transaction: any) => ({
-  //       amount: parseFloat(transaction.amount),
-  //       user_balance: transaction.user_balance,
-  //       operation_response: transaction.operation_response,
-  //       date: new Date(transaction.date)
-  //     }));
-  //   },
-  //   (error) => {
-  //     console.error('Error fetching transactions:', error);
-  //   }
-  // );
 }
 
 viewTransaction(transaction:any){
@@ -128,13 +104,9 @@ openModal(transaction:any) {
 
   }
 }
-deleteTransactions(transaction:any){
-  console.log("realizar accion",transaction);
-}
 openTransactionDetail(transaction: any) {
-  // Aquí puedes implementar la lógica para abrir el popup y mostrar los detalles de la transacción
   alert(`Detalle de la transacción: ${JSON.stringify(transaction)}`);
-  this.selectedTransaction = transaction; // Agrega una variable para almacenar la transacción seleccionada
+  this.selectedTransaction = transaction;
 
 }
 
@@ -162,17 +134,9 @@ setPage(page: number) {
   var startIndex = (this.currentPage - 1) * this.pageSize;
   var endIndex = Math.min(startIndex + this.pageSize, this.transactions.length);
 
-  console.log("startIndex");
-  console.log(startIndex);
-  console.log("endIndex");
-  console.log(endIndex);
+  this.transactions.filter(transaction => transaction.id >= startIndex && transaction.id <= endIndex);
 
-this.transactions.filter(transaction => transaction.id >= startIndex && transaction.id <= endIndex);
-// const registrosFiltrados = registros.filter(registro => registro.id >= idInicial && registro.id <= idFinal);
-
-  // Obtener los registros correspondientes a la página actual
   let currentPageTransactions = this.transactions.slice(startIndex, endIndex);
-  // Actualizar la tabla con los registros de la página actual
   this.transactions = currentPageTransactions;
 }
 

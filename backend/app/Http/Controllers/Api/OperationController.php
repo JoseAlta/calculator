@@ -100,19 +100,15 @@ class OperationController extends Controller
 
     public function handleOperation(Request $request)
     {
-        Log::debug("handleOperation");
 
         $validatedData = $request->validate([
             'cost' => 'required|numeric|min:0',
             'operation_type' => 'required|string|in:add,subtraction,multiply,division,square'
         ]);
-        Log::debug("handleOperation");
 
         $user = $request->user();
-        Log::debug($user);
 
         try {
-            // Crear la operación
             $operation = new Operation([
                 'type' => $validatedData['operation_type'],
                 'cost' => $validatedData['cost']
@@ -120,11 +116,8 @@ class OperationController extends Controller
             $operation->user()->associate($user);
             $operation->save();
 
-            // Manejar la operación de crédito
             $newCredit = $this->creditService->handleCreditOperation($user, $operation);
 
-            Log::debug("newCredit");
-            Log::debug($newCredit);
             return response()->json([
                 'success' => true,
                 'new_credit' => $newCredit

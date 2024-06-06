@@ -62,7 +62,6 @@ export class CalculatorComponent {
         userData => {
           this.userData = userData;
           this.credit = parseFloat(userData.credit).toFixed(3);
-          console.log('Información del usuario:', this.userData);
         },
         error => {
           console.error('Error al obtener la información del usuario:', error);
@@ -156,8 +155,7 @@ export class CalculatorComponent {
     this.http.post<any>('http://localhost:8000/api/user/operation', payload, { headers }).subscribe(
       response => {
         this.credit = parseFloat(response.new_credit).toFixed(3);
-        console.log("response");
-        console.log(response);
+
         this.display = this.credit;
         this.answer = true;
         if (this.topScreensComponent) {

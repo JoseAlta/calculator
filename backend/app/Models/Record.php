@@ -20,13 +20,11 @@ class Record extends Model
         'date',
     ];
 
-    // Relación con el modelo Operation
     public function operation()
     {
         return $this->belongsTo(Operation::class);
     }
 
-    // Relación con el modelo User
     public function user()
     {
         return $this->belongsTo(User::class);

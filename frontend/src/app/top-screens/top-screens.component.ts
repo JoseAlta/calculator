@@ -31,7 +31,6 @@ export class TopScreensComponent {
         userData => {
           this.userData = userData;
           this.credit = parseFloat(userData.credit).toFixed(3);
-          console.log('Información del usuario:', this.userData);
         },
         error => {
           console.error('Error al obtener la información del usuario:', error);
@@ -47,6 +46,6 @@ export class TopScreensComponent {
     this.router.navigate(['/login']);
   }
   toggleDropMenu() {
-    this.dropMenu = !this.dropMenu; // Invierte el valor de dropMenu
+    this.dropMenu = !this.dropMenu;
   }
 }
