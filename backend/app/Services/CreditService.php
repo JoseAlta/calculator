@@ -50,7 +50,7 @@ class CreditService
                 }
                 return $currentCredit / $cost;
             case 'square':
-                return $currentCredit ** 2;
+                return sqrt($currentCredit);
             default:
                 throw new Exception('Invalid operation type');
         }

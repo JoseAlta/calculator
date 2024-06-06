@@ -12,11 +12,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Validation\Rule;
 use App\Interfaces\OperationInterface;
-use App\Services\SumOperation;
-use App\Services\SubtractionOperation;
-use App\Services\SquareOperation;
-use App\Services\MultiplyOperation;
-use App\Services\DivisionOperation;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use App\Services\CreditService;
@@ -31,21 +26,11 @@ class OperationController extends Controller
     private $divisionOperation;
     private $squareOperation;
 
-    public function __construct(   SumOperation $sumOperation,
-    SubtractionOperation $subtractionOperation,
-    SquareOperation $squareOperation,
-    MultiplyOperation $multiplyOperation,
-    DivisionOperation $divisionOperation,
-    CreditService $creditService)
+    public function __construct(CreditService $creditService)
     {
         $this->middleware('auth:sanctum');
         $this->creditService = $creditService;
 
-        $this->sumOperation = $sumOperation;
-        $this->subtractionOperation = $subtractionOperation;
-        $this->multiplyOperation = $multiplyOperation;
-        $this->divisionOperation = $divisionOperation;
-        $this->squareOperation = $squareOperation;
     }
     public function index()
     {

@@ -27,7 +27,7 @@ export class CalculatorComponent {
     { displayName: '√', value: 'square' },
     { displayName: 'CE', value: 'clear' },
     { displayName: 'RM', value: 'random' },
-    { displayName: '<--', value: 'backspace' },
+    { displayName: '<--', value: 'Backspace' },
     { displayName: '7', value: '7' },
     { displayName: '8', value: '8' },
     { displayName: '9', value: '9' },
@@ -82,6 +82,7 @@ export class CalculatorComponent {
       this.answer = false;
     }
 
+    console.log("value");console.log(value);
     this.errorMessage = '';
     if (value === '=') {
       this.performOperation(this.display);
@@ -89,7 +90,7 @@ export class CalculatorComponent {
       this.fetchRandomString();
     } else if (value === 'clear') {
       this.display = '';
-    } else if (value === 'backspace') {
+    } else if (value === 'Backspace') {
       this.display = this.display.slice(0, -1);
     } else if (value === 'square') {
       // this.display = Math.sqrt(parseFloat(this.display)).toString();
@@ -173,6 +174,7 @@ export class CalculatorComponent {
   @HostListener('window:keydown', ['$event'])
   handleKeydown(event: KeyboardEvent): void {
     const key = event.key;
+    console.log(key);
     this.errorMessage = '';
     const button = this.buttons.find(btn => btn.value === key || (key === 'Enter' && btn.value === '='));
     if (button ) {

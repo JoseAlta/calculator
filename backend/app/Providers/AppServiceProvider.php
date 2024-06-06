@@ -3,10 +3,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Interfaces\OperationInterface ;
-use App\Services\SumOperation;
-use App\Services\SubtractionOperation;
-use App\Services\MultiplicationOperation;
 
+use App\Services\CreditService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(OperationInterface::class, function ($app) {
             // Elige la implementación concreta según el contexto
-            return new SumOperation(); // Por defecto, puedes elegir una implementación
+            return new CreditService(); // Por defecto, puedes elegir una implementación
         });
     }
 

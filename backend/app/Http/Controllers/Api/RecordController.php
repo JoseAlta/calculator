@@ -95,7 +95,7 @@ class RecordController extends Controller
                 "subtraction" => "-",
                 "division" => "/",
                 "multiply" => "*",
-                "square" => "^"
+                "square" => "√"
             ];
             $date = $record->date instanceof Carbon ? $record->date->format('Y-m-d h:i a') : Carbon::createFromFormat('Y-m-d H:i:s', $record->date)->format('Y-m-d h:i a');
             $created_at = $record->created_at instanceof Carbon ? $record->created_at->format('Y-m-d h:i a') : Carbon::createFromFormat('Y-m-d H:i:s', $record->created_at)->format('Y-m-d h:i a');
