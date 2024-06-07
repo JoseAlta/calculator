@@ -49,6 +49,18 @@ we install all the dependencies:
 
 `composer install`
 
+we need to create a key for Laraven when it is already runing
+
+`php artisan key:generate`
+
+we update the database
+`php artisan migrate`
+
+we fill our user table with fake data
+`php artisan db:seed`
+
+
+
 For the backend it is not necessary to execute the command php artisan because the nginx container is linked on the public laraver folder
 
 As for the frontend (Angular) I made sure to expose the 4200, in this way you edit the file locally but links it on the docker instantly and angular cli does the rest on the docker.
