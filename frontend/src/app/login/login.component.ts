@@ -25,9 +25,9 @@ export class LoginComponent {
     }, error => {
       console.error('Error al iniciar sesión:', error);
       if (error.status === 422) {
-        this.errorMessage = 'Credenciales inválidas. Por favor, intenta de nuevo.';
+        this.errorMessage = 'invalid credentials, please try again';
       } else {
-        this.errorMessage = 'Ocurrio un problema al conectarno, intenta de nuevo';
+        this.errorMessage = 'an error occuring during login, please try again';
       }
     });
   }

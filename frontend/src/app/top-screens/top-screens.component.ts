@@ -30,6 +30,10 @@ export class TopScreensComponent {
       this.http.get<any>('http://localhost:8000/api/user',{ headers }).subscribe(
         userData => {
           this.userData = userData;
+          console.log(this.userData.credit);
+          if(this.userData.credit == null){
+            this.userData.credit = "0";
+          }
           this.credit = parseFloat(userData.credit).toFixed(3);
         },
         error => {

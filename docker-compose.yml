@@ -8,6 +8,8 @@ services:
             dockerfile: ./docker/backend/DockerFile
         container_name: "${PROJECT_NAME}_backend"
         tty: true
+        ports: 
+            - '8000:8000' 
         environment:
             SERVICE_NAME: backend
         working_dir: /var/www/backend
@@ -53,6 +55,8 @@ services:
         image: mysql:latest
         container_name: "${PROJECT_NAME}_mysql"
         tty: true
+        ports: 
+            - '3306:3306' 
         environment:
             MYSQL_USER: ${USER_MYSQL}
             MYSQL_PASSWORD: ${PASS_MYSQL}
