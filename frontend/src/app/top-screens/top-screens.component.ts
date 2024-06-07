@@ -2,6 +2,7 @@ import { Component,Input } from '@angular/core';
 import { AuthService } from '../auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { ApiService } from '../api.service';
 
 @Component({
   selector: 'app-top-screens',
@@ -16,6 +17,7 @@ export class TopScreensComponent {
 
   constructor(private authService: AuthService,
     private http: HttpClient,
+    private apiService: ApiService,
     private router: Router) { }
 
   ngOnInit(): void {
@@ -27,7 +29,7 @@ export class TopScreensComponent {
       const headers = new HttpHeaders({
         'Authorization': `Bearer ${token}`
       });
-      this.http.get<any>('http://localhost:8000/api/user',{ headers }).subscribe(
+      this.http.get<any>(this.apiService.apiUrl+'user',{ headers }).subscribe(
         userData => {
           this.userData = userData;
           console.log(this.userData.credit);

@@ -5,6 +5,7 @@ import { operatorMap } from '../shared/constants/operators';
 import { Router } from '@angular/router';
 import { TopScreensComponent } from '../top-screens/top-screens.component';
 import { RandomService } from '../random.service';
+import { ApiService } from '../api.service';
 @Component({
   selector: 'app-calculator',
   templateUrl: './calculator.component.html',
@@ -53,7 +54,8 @@ export class CalculatorComponent {
   constructor(private authService: AuthService,
               private http: HttpClient,
               private randomService: RandomService,
-              private router: Router) { }
+              private router: Router,
+              private apiService: ApiService) { }
 
   ngOnInit(): void {
 
@@ -62,7 +64,7 @@ export class CalculatorComponent {
       const headers = new HttpHeaders({
         'Authorization': `Bearer ${token}`
       });
-      this.http.get<any>('http://localhost:8000/api/user',{ headers }).subscribe(
+      this.http.get<any>(this.apiService.apiUrl+'user',{ headers }).subscribe(
         userData => {
           this.userData = userData;
           this.credit = parseFloat(userData.credit).toFixed(3);
@@ -151,7 +153,7 @@ export class CalculatorComponent {
       operation_type: operatorName
     };
 
-    this.http.post<any>('http://localhost:8000/api/user/operation', payload, { headers }).subscribe(
+    this.http.post<any>(this.apiService.apiUrl+'user/operation', payload, { headers }).subscribe(
       response => {
         this.credit = parseFloat(response.new_credit).toFixed(3);
 

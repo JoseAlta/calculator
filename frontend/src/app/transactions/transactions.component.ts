@@ -4,6 +4,7 @@ import { HttpClient, HttpHeaders} from '@angular/common/http';
 import { AuthService } from '../auth.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatPaginator } from '@angular/material/paginator';
+import { ApiService } from '../api.service';
 
 @Component({
   selector: 'app-transactions',
@@ -29,7 +30,10 @@ pageSize: number = 5; // Número de elementos por página
   pages: number[] = []; // Lista de páginas para mostrar en la paginación
 
 
- constructor(private http: HttpClient,private authService: AuthService,private route: ActivatedRoute) { }
+ constructor(private http: HttpClient,
+  private authService: AuthService,
+  private apiService: ApiService,
+  private route: ActivatedRoute) { }
 
  ngOnInit(): void {
   this.route.params.subscribe(params => {
@@ -56,7 +60,7 @@ fetchTransactions(): void {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.token}`
     });
-    this.http.get<any>('http://localhost:8000/api/records/user/'+this.userId,{ headers }).subscribe(
+    this.http.get<any>(this.apiService.apiUrl+'records/user/'+this.userId,{ headers }).subscribe(
       userTransactionsData => {
         this.transactions = userTransactionsData
       },
@@ -80,7 +84,7 @@ deleteTransaction() {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.token}`
     });
-    this.http.delete(`http://localhost:8000/api/operations/delete/${operationId}`,{ headers })
+    this.http.delete(this.apiService.apiUrl+`operations/delete/${operationId}`,{ headers })
       .subscribe(
         response => {
           window.location.reload();
