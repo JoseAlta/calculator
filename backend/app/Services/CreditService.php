@@ -12,7 +12,7 @@ class CreditService
     public function handleCreditOperation(User $user, Operation $operation): float
     {
         return DB::transaction(function () use ($user, $operation) {
-            $currentCredit = $user->credit;
+            $currentCredit = $user->credit ?? 0;
 
             $newCredit = $this->performOperation($currentCredit, $operation->cost, $operation->type);
 
