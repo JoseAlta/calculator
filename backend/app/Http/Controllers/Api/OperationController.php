@@ -143,27 +143,21 @@ class OperationController extends Controller
     public function deleteFromOperation($operationId)
     {
         DB::transaction(function () use ($operationId) {
-            // Obtener la operación especificada
             $operation = Operation::findOrFail($operationId);
 
-            // Obtener el usuario asociado a la operación
             $user = $operation->user;
 
-            // Obtener el último record antes de la operación especificada
             $lastRecord = Record::where('user_id', $user->id)
                                 ->where('operation_id', '<', $operationId)
                                 ->orderBy('id', 'desc')
                                 ->first();
 
-            // Si hay un record anterior, restablecer el crédito del usuario
             if ($lastRecord) {
                 $newCredit = $lastRecord->user_balance;
             } else {
-                // Si no hay records anteriores, resetear el crédito a 0 o a un valor predeterminado
                 $newCredit = 0;
             }
 
-            // Crear un nuevo record para reflejar la operación de eliminación antes de eliminar las operaciones
             Record::create([
                 'operation_id' => $operation->id,
                 'user_id' => $user->id,
@@ -173,16 +167,13 @@ class OperationController extends Controller
                 'date' => now(),
             ]);
 
-            // Actualizar el crédito del usuario
             $user->credit = $newCredit;
             $user->save();
 
-            // Obtener todas las operaciones del usuario posteriores a la operación especificada (incluyéndola)
             $operationsToDelete = Operation::where('user_id', $user->id)
                                         ->where('id', '>=', $operationId)
                                         ->get();
 
-            // Realizar soft delete en las operaciones y sus registros
             foreach ($operationsToDelete as $op) {
                 $op->records()->delete(); // Soft delete de los registros
                 $op->delete(); // Soft delete de las operaciones
