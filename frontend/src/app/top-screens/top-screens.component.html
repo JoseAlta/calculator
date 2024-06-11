@@ -11,7 +11,7 @@
             <div class="" style="position: absolute;" >
               <ul *ngIf="dropMenu" class="menu d-flex flex-column">
                 <li class="calculator"><a href="/dashboard" class="text-white"> <i class="bi bi-list "></i>Calculator</a></li>
-                <li class="calculator"><a href="/transactions/{{userData.id}}" class="text-white"> <i class="bi bi-list "></i>Transactions</a></li>
+                <li class="calculator"><a (click)="goToTransactions()"  class="text-white"> <i class="bi bi-list "></i>Transactions</a></li>
                 <li class="logout"><a (click)="logout()" class="text-white"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
             </ul></div>
 

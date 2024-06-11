@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-
+use Exception;
 class RecordController extends Controller
 {
     public function index()
@@ -88,6 +88,9 @@ class RecordController extends Controller
     public function getByUser($id){
 
         $records = Record::where('user_id',$id)->whereNull('deleted_at')->get();
+        Log::debug("record");
+
+        Log::debug($records);
 
         $mappedRecords = $records->map(function ($record) {
             $operationSigns = [
@@ -95,7 +98,8 @@ class RecordController extends Controller
                 "subtraction" => "-",
                 "division" => "/",
                 "multiply" => "*",
-                "square" => "√"
+                "square" => "√",
+                "random" => "random"
             ];
             $date = $record->date instanceof Carbon ? $record->date->format('Y-m-d h:i a') : Carbon::createFromFormat('Y-m-d H:i:s', $record->date)->format('Y-m-d h:i a');
             $created_at = $record->created_at instanceof Carbon ? $record->created_at->format('Y-m-d h:i a') : Carbon::createFromFormat('Y-m-d H:i:s', $record->created_at)->format('Y-m-d h:i a');
@@ -106,10 +110,11 @@ class RecordController extends Controller
                 'date' => $date,
                 'operation_id' => $record->operation_id,
                 'operation_response' => $record->operation_response,
+                'operation_request' => $record->operation_request,
                 'updated_at' => $record->updated_at,
                 'user_balance' => $record->user_balance,
                 'user_id' => $record->user_id,
-                'operation_type' => $operationSigns[$record->operation->type] ?? null
+                'operation_type' => $operationSigns[$record->operation->type]
             ];
         });
         if (!$mappedRecords) {

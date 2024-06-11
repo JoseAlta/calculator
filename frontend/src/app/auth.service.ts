@@ -18,6 +18,7 @@ export class AuthService {
   }
 
   logout(): Observable<any> {
+    this.clearToken();
     return this.http.post<any>(`${this.apiUrl}/logout`, {});
   }
   saveToken(token: string) {

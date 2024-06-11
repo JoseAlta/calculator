@@ -15,7 +15,6 @@ export class TransactionsComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
  help : string = '' ;
  transactions: Transaction[] = [];
-//  displayedColumns: string[] = ['id', 'amount', 'created_at', 'operation_id', 'operation_response', 'user_balance', 'user_id'];
  displayedColumns: string[] = ['id','amount','operation_type','user_balance','operation_response','created_at'];
  credit:string = "";
  userData:any ;
@@ -100,7 +99,7 @@ confirmDelete(transaction: any) {
   this.transactionToDelete = transaction;
 }
 openModal(transaction:any) {
-  if (window.confirm('Are you sure you want to delete this operation? It wll delete all the transactions from this one')) {
+  if (window.confirm('Are you sure you want to delete this operation? your credit will be refounded')) {
     // this.deleteTransactions(transaction);
     this.transactionToDelete = transaction;
     this.deleteTransaction();

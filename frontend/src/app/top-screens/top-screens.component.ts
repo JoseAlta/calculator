@@ -54,4 +54,7 @@ export class TopScreensComponent {
   toggleDropMenu() {
     this.dropMenu = !this.dropMenu;
   }
+  goToTransactions(): void {
+    this.router.navigate(['/transactions', this.userData.id]);
+  }
 }

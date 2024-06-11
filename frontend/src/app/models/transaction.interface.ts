@@ -13,6 +13,7 @@ export interface Transaction {
   operation_id: number;
   operation_type:string;
   operation_response: string;
+  operation_request: string;
   updated_at: string;
   user_balance: string;
   user_id: number;

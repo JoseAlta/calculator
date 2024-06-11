@@ -15,7 +15,7 @@ use App\Interfaces\OperationInterface;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use App\Services\CreditService;
-
+use Exception;
 
 class OperationController extends Controller
 {
@@ -87,16 +87,26 @@ class OperationController extends Controller
     {
 
         $validatedData = $request->validate([
-            'cost' => 'required|numeric|min:0',
-            'operation_type' => 'required|string|in:add,subtraction,multiply,division,square'
+            'cost' => 'numeric|min:0',
+            'operation_type' => 'string|in:add,subtraction,multiply,division,square',
+            'operation' => 'required|string'
         ]);
 
         $user = $request->user();
+        $parsed = $this->parseExpression($validatedData['operation']);
+        if (is_string($parsed)) {
+            return response()->json(['error' => $parsed], 400);
+        }
+
+        Log::debug("aqui empeza");
+        Log::debug($parsed);
+        Log::debug(json_encode($validatedData));
 
         try {
             $operation = new Operation([
                 'type' => $validatedData['operation_type'],
-                'cost' => $validatedData['cost']
+                'cost' => $validatedData['cost'],
+                // 'operation' => $validatedData['operation'],
             ]);
             $operation->user()->associate($user);
             $operation->save();
@@ -114,6 +124,49 @@ class OperationController extends Controller
                 'message' => $e->getMessage()
             ], 400);
         }
+    }
+    public function handleOperations(Request $request)
+    {
+        $validatedData = $request->validate([
+            'operation' => 'required|string',
+        ]);
+
+        Log::debug("raiz cudrada");
+        Log::debug($validatedData);
+
+        $user = Auth::user();
+        $expression = $validatedData['operation'];
+
+        try {
+            $result = $this->creditService->handleCreditOperation($user, $expression);
+
+            return response()->json([
+                'success' => true,
+                'result' => $result['result'],
+                'new_balance' => $result['new_balance']
+            ], 200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    private function parseExpression(string $expression)
+    {
+        $pattern = '/(\d+(\.\d+)?)([\+\-\*\/])(\d+(\.\d+)?)/';
+
+        if (!preg_match($pattern, $expression, $matches)) {
+            return 'Invalid expression';
+        }
+
+        $left = floatval($matches[1]);
+        $operator = $matches[3];
+        $right = floatval($matches[4]);
+
+        return [$left, $operator, $right];
     }
 
     public function show(Operation $operation)
@@ -140,45 +193,17 @@ class OperationController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public function deleteFromOperation($operationId)
+    public function deleteAndRefoundOperation($operationId)
     {
-        DB::transaction(function () use ($operationId) {
-            $operation = Operation::findOrFail($operationId);
 
-            $user = $operation->user;
+        $operation = Operation::findOrFail($operationId);
+        $user = $operation->user;
 
-            $lastRecord = Record::where('user_id', $user->id)
-                                ->where('operation_id', '<', $operationId)
-                                ->orderBy('id', 'desc')
-                                ->first();
-
-            if ($lastRecord) {
-                $newCredit = $lastRecord->user_balance;
-            } else {
-                $newCredit = 0;
-            }
-
-            Record::create([
-                'operation_id' => $operation->id,
-                'user_id' => $user->id,
-                'amount' => 0, // Monto 0 ya que es una operación de eliminación
-                'user_balance' => $newCredit,
-                'operation_response' => 'Delete operations from ID: ' . $operationId,
-                'date' => now(),
-            ]);
-
-            $user->credit = $newCredit;
-            $user->save();
-
-            $operationsToDelete = Operation::where('user_id', $user->id)
-                                        ->where('id', '>=', $operationId)
-                                        ->get();
-
-            foreach ($operationsToDelete as $op) {
-                $op->records()->delete(); // Soft delete de los registros
-                $op->delete(); // Soft delete de las operaciones
-            }
-        });
+        $user->credit += $operation->cost;
+        $user->save();
+        $operation->records()->delete();
+        $operation->delete();
+        return response()->json(null, 204);
 
         return response()->json(['message' => 'Operations soft deleted and user credit updated successfully.']);
     }

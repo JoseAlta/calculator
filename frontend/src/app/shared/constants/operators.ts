@@ -4,4 +4,5 @@ export const operatorMap: { [key: string]: string } = {
   '*': 'multiply',
   '/': 'division',
   '√': 'square',
+  'rdm': 'random'
 };

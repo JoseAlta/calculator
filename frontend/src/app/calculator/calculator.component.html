@@ -1,34 +1,61 @@
-<div class="calculator container">
-  <!-- <div class="alert alert-danger" role="alert" *ngIf="errorMessage">
-    {{ errorMessage }}
-  </div> -->
-  <app-top-screens></app-top-screens>
 
-  <div class="alert alert-danger" role="alert" *ngIf="errorMessage">
-    {{ errorMessage }}
+<div class="d-flex flex-row ">
+  <div class="col-1">
+    <div class=" d-flex justify-content-center">
+      <div class="col-4">
+        <table class="table table-bordered table-striped">
+          <thead class="thead-dark">
+            <tr>
+              <th>Operador</th>
+              <th>Type</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let operation of operations | keyvalue">
+              <td>{{operation.key}}</td>
+              <td>{{operation.value.type}}</td>
+              <td>{{operation.value.cost}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
+  <div class="col-10">
+    <div class="calculator container">
 
-    <div class="calculators d-flex flex-row">
-      <div class="screen col-11">
-        <input type="string" pattern="[0-9]+(\.[0-9]+)?"  id="display" class="form-control mb-3 operator" placeholder="Write your operation" [(ngModel)]="display">
-      </div>
-      <div class="col-md-1">
-        <button class="expand-button" (click)="goToTransactions()">
-          ▼
-        </button>
+      <app-top-screens></app-top-screens>
+
+      <div class="alert alert-danger" role="alert" *ngIf="errorMessage">
+        {{ errorMessage }}
       </div>
 
-    </div>
-    <div class="screen">
-      <!-- Contenido de la pantalla aquí -->
-    </div>
-    <div class="buttons row">
-      <ng-container *ngFor="let button of buttons">
-        <div class="col-3 mb-2">
-          <button class="btn btn-primary btn-calculator" [ngClass]="{'btn-selected': selected[button.value]}"  (click)="handleClick(button.value)" [attr.value]="button.value">
-            {{ button.displayName }}
-          </button>
+        <div class="calculators d-flex flex-row">
+          <div class="screen col-11">
+            <input type="string" pattern="[0-9]+(\.[0-9]+)?"  id="display_1" class="form-control mb-3 operator" placeholder="Write your operation" [(ngModel)]="display">
+          </div>
+          <div class="col-md-1">
+            <button class="expand-button" (click)="goToTransactions()">
+              ▼
+            </button>
+          </div>
+
         </div>
-      </ng-container>
-    </div>
+        <div class="screen">
+        </div>
+        <div class="buttons row">
+          <ng-container *ngFor="let button of buttons">
+            <div class="col-3 mb-2">
+              <button class="btn btn-primary btn-calculator" [ngClass]="{'btn-selected': selected[button.value]}"  (click)="handleClick(button.value)" [attr.value]="button.value">
+                {{ button.displayName }}
+              </button>
+            </div>
+          </ng-container>
+        </div>
+      </div>
   </div>
+
+
+</div>
+

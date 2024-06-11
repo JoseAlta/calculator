@@ -21,6 +21,7 @@ export class CalculatorComponent {
   answer:boolean = false;
   userId:string = '';
   randomString!: string;
+  display_1 : string = "1+1";
 
   @ViewChild(TopScreensComponent) topScreensComponent!: TopScreensComponent;
 
@@ -49,6 +50,15 @@ export class CalculatorComponent {
     { displayName: '=', value: '=' },
 
   ];
+
+  operations = {
+    '+' : { type: 'addition', cost: 3 },
+    '-' : { type: 'subtraction', cost: 4 },
+    '*' : { type: 'multiply', cost: 5 },
+    '/' : { type: 'division', cost: 6 },
+    'RM' : { type: 'random', cost: 10 },
+    '√' : { type: 'square', cost: 8 }
+  };
 
 
   constructor(private authService: AuthService,
@@ -79,32 +89,40 @@ export class CalculatorComponent {
 
   handleClick(value: string): void {
     console.log("handleClick()");
-    if(this.answer){
+
+    if (this.answer) {
       this.display = "";
       this.answer = false;
     }
 
-    console.log("value");console.log(value);
+    console.log("value:", value);
     this.errorMessage = '';
+
     if (value === '=') {
       this.performOperation(this.display);
-    } else if(value === 'random'){
-      this.fetchRandomString();
+    } else if (value === 'random') {
+      this.display = 'rdm'
+      this.performOperation(this.display);
     } else if (value === 'clear') {
       this.display = '';
     } else if (value === 'Backspace') {
       this.display = this.display.slice(0, -1);
     } else if (value === 'square') {
-      // this.display = Math.sqrt(parseFloat(this.display)).toString();
-      this.display = '√'+this.credit;
-      this.performOperation(this.display);
-
-
+      const hasOperator = /[+\-*/]/.test(this.display);
+      if (this.display && !hasOperator && !isNaN(parseFloat(this.display))) {
+        this.display = '√' + this.display;
+        this.performOperation(this.display);
+      }
     } else if (['+', '-', '*', '/'].includes(value)) {
-      if (this.display.length === 0 || ['+', '-', '*', '/'].includes(this.display[0])) {
-        this.display = value + this.display.slice(1);
-      } else {
-        this.display = value + this.display;
+      const hasOperator = /[+\-*/]/.test(this.display);
+      if (!hasOperator && this.display.length > 0) {
+        this.display += value;
+      }
+    } else if (value === '.') {
+      const parts = this.display.split(/[+\-*/]/);
+      const currentNumber = parts[parts.length - 1];
+      if (!currentNumber.includes('.')) {
+        this.display += value;
       }
     } else {
       this.display += value;
@@ -123,7 +141,7 @@ export class CalculatorComponent {
       'Authorization': `Bearer ${token}`
     });
 
-    const regex = /[+\-*/√]/;
+    const regex = /[+\-*/√]|rdm/;
     const matches = display.match(regex);
 
     if (!matches || matches.length !== 1) {
@@ -149,24 +167,24 @@ export class CalculatorComponent {
     }
 
     const payload = {
-      cost: operand2,
-      operation_type: operatorName
+      operation: this.display
     };
 
-    this.http.post<any>(this.apiService.apiUrl+'user/operation', payload, { headers }).subscribe(
-      response => {
-        this.credit = parseFloat(response.new_credit).toFixed(3);
 
-        this.display = this.credit;
+    this.http.post<any>(this.apiService.apiUrl+'user/operations', payload, { headers }).subscribe(
+      response => {
+        this.credit = parseFloat(response.new_balance).toFixed(3);
+
+        this.display = response.result;
         this.answer = true;
         if (this.topScreensComponent) {
           this.topScreensComponent.updateCredit(this.credit); // Actualiza el crédito con el resultado de la operación
         }
+        console.log("response",response);
       },
       error => {
         console.error('Error al realizar la operación:', error.error);
         console.error('Error al realizar la operación:', error);
-        // var error = error.error.pop();
         this.errorMessage = JSON.stringify(error.error.message);
         console.error('Error al realizar la operación:', this.errorMessage);
 

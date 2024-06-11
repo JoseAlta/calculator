@@ -17,6 +17,7 @@ class Record extends Model
         'amount',
         'user_balance',
         'operation_response',
+        'operation_request',
         'date',
     ];
 
